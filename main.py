@@ -71,6 +71,27 @@ def AVLpolowienie(tab, prevh):
     
     return root
         
+def BSTwstaw(val, node):
+    if not node.value:
+        node.value = val
+        return
+
+    if val <= node.value:
+        if node.left:
+            BSTwstaw(val, node.left)
+            return
+        node.left = Node(val)
+        return
+
+    if node.right:
+        BSTwstaw(val, node.right)
+        return
+    node.right = Node(val)
+
+def BSTstworz(tab, node):
+    for el in tab:
+        BSTwstaw(el, node)
+    return node
         
         
 wybor = "" 
@@ -90,7 +111,10 @@ else:
     while True:
         print("Podaj ciąg liczb (n<=10)")
         dane = input().split(" ")
-        dane = [int(el) for el in dane]
+        try:
+            dane = [int(el) for el in dane]
+        except:
+            continue
         if len(dane) > 1 and len(dane)<10:
             break
 
@@ -99,7 +123,12 @@ print("Twoje dane to: {}".format(dane))
     
 
 # Korzen drzewa
-root = AVLpolowienie([1,2,3,4,5,6,7,8,9], 0)
+root = AVLpolowienie(dane, 0)
+root2 = BSTstworz(dane, Node(None))
 
 # Przeszukujemy drzewo w kolejnosci in-order
-inorder(root)
+preorder(root)
+
+print("")
+
+preorder(root2)
