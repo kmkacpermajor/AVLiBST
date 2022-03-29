@@ -1,11 +1,6 @@
-# Klasa reprezentujaca pojedynczy wezel drzewa
-<<<<<<< HEAD
-=======
 import math
 import random
 
-
->>>>>>> 42b20d8 (test)
 class Node:
     def __init__(self, value):
         # Wartosc przechowywana w wezle
@@ -14,7 +9,6 @@ class Node:
         self.left = None
         # Prawy syn
         self.right = None
-<<<<<<< HEAD
 
 
 # Rekurencyjne przeszukiwanie drzewa
@@ -24,20 +18,6 @@ def search(node):
     print(node.value)
     if node.right is not None:
         search(node.right)
-
-
-# Korzen drzewa
-root = Node(7)
-# Dodajemy dzieci "recznie"
-root.left = Node(4)
-root.right = Node(9)
-root.left.right = Node(5)
-
-# Przeszukujemy drzewo w kolejnosci in-order
-search(root)
-=======
-        # Poziom danego elementu
-        self.height = 0
 
 
 # Rekurencyjne przeszukiwanie drzewa
@@ -55,6 +35,14 @@ def preorder(node):
         preorder(node.left)
     if node.right:
         preorder(node.right)
+
+
+def postorder(node):
+    if node.left:
+        inorder(node.left)
+    if node.right:
+        inorder(node.right)
+    print(node.value)
 
 
 def getHeight(node):
@@ -145,6 +133,7 @@ while True:
     if wybor in ["1", "2"]:
         break
 
+
 dane = []
 if wybor == "1":
     for _ in range(10):
@@ -166,15 +155,41 @@ print("Twoje dane to: {}".format(dane))
 root = AVLpolowienie(dane, 0)
 root2 = BSTstworz(dane, Node(None))
 
-# Przeszukujemy drzewo w kolejnosci in-order
-preorder(root)
+while True:
+    print("Wybierz procedure")
+    print("1 - wyszukanie w drzewie elementu o najmniejszej wartości i wypisanie ścieżki poszukiwania")
+    print("2 - wyszukanie w drzewie elementu o najwiekszej wartości i wypisanie ścieżki poszukiwania")
+    print("3 - usunięcie elementu drzewa o wartości klucza podanej przez użytkownika")
+    print("4 - wypisanie wszystkich elementów drzewa w porządku in-order")
+    print("5 - wypisanie wszystkich elementów drzewa w porządku post-order")
+    print("6 - usunięcie całego drzewa element po elemencie metodą post-order")
+    print("7 - równoważenie drzewa przez rotacje")
+    print("0 - zakoncz program")
+    w = int(input())
+    if w==0:
+        break
+    elif w in [1,2,3,4,5,6,7]:
+        if w == 1:
+            print(getMin(root))
+            print()
+            print(getMin(root2))
+        elif w == 2:
+            print(getMax(root))
+            print()
+            print(getMax(root2))
+        elif w == 3:
+            pass
+        elif w == 4:
+            inorder(root)
+            print()
+            inorder(root2)
+        elif w == 5:
+            postorder(root)
+            print()
+            postorder(root2)
+        elif w == 6:
+            deleteWholeTree(root)
+            deleteWholeTree(root2)
+        elif w == 7:
+            pass
 
-print("")
-
-preorder(root2)
-
-print()
-print(getMax(root2))
-print()
-print(height(root))
->>>>>>> 42b20d8 (test)
