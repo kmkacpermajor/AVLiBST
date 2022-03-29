@@ -3,124 +3,11 @@ import random
 
 class Node:
     def __init__(self, value):
-        # Wartosc przechowywana w wezle
         self.value = value
-        # Lewy syn
         self.left = None
-        # Prawy syn
         self.right = None
-        # Poziom danego elementu
         self.height = 0
 
-
-# Rekurencyjne przeszukiwanie drzewa
-def inorder(node):
-    if node.left:
-        inorder(node.left)
-    print(node.value)
-    if node.right:
-        inorder(node.right)
-
-def preorder(node):
-    print(node.value)
-    if node.left:
-        preorder(node.left)
-    if node.right:
-        preorder(node.right)
-
-def getHeight(node):
-    if node:
-        return node.height
-    else:
-        return 0
-
-def getMin(node):
-    while(node.left):
-        node = node.left
- 
-    return node
-
-def getMax(node):
-    while(node.right):
-        node = node.right
- 
-    return node
-
-def deleteWholeTree(node):
-    if node.left:
-        deleteWholeTree(node.left)
-    if node.right:
-        deleteWholeTree(node.right)
-    node.left = None
-    node.right = None
-
-def AVLpolowienie(tab, prevh):
-    if len(tab) != 1:
-        pol = math.floor(len(tab)/2)
-        root = Node(tab[pol])
-        root.height = prevh + 1
-        if len(tab) > 2:
-            root.right = AVLpolowienie(tab[pol+1:], root.height)
-        root.left = AVLpolowienie(tab[:pol], root.height)
-        
-    else:
-        root = Node(tab[0])
-        root.height = prevh + 1
-    
-    return root
-        
-def BSTwstaw(val, node):
-    if not node.value:
-        node.value = val
-        return
-
-    if val <= node.value:
-        if node.left:
-            BSTwstaw(val, node.left)
-            return
-        node.left = Node(val)
-        return
-
-    if node.right:
-        BSTwstaw(val, node.right)
-        return
-    node.right = Node(val)
-
-def BSTstworz(tab, node):
-    for el in tab:
-        BSTwstaw(el, node)
-    return node
-        
-        
-wybor = "" 
-while True:
-    print("Jaki ma być ciąg wejściowy")
-    print("1. Generowany przez program")
-    print("2. Wpisywany przez użytkownika")
-    wybor = input()
-    if wybor in ["1","2"]:
-        break
-
-dane = []
-if wybor == "1":
-    for _ in range(10):
-        dane.append(random.randint(0, 100))
-else:
-    while True:
-        print("Podaj ciąg liczb (n<=10)")
-        dane = input().split(" ")
-        try:
-            dane = [int(el) for el in dane]
-        except:
-            continue
-        if len(dane) > 1 and len(dane)<10:
-            break
-
-print("Twoje dane to: {}".format(dane))
-
-    
-
-# Rekurencyjne przeszukiwanie drzewa
 def inorder(node):
     if node.left:
         inorder(node.left)
@@ -135,14 +22,6 @@ def preorder(node):
         preorder(node.left)
     if node.right:
         preorder(node.right)
-
-
-def postorder(node):
-    if node.left:
-        inorder(node.left)
-    if node.right:
-        inorder(node.right)
-    print(node.value)
 
 
 def getHeight(node):
@@ -175,38 +54,38 @@ def deleteWholeTree(node):
     node.right = None
 
 
-def AVLpolowienie(tab, prevh):
-    if len(tab) != 1:
-        pol = math.floor(len(tab) / 2)
-        root = Node(tab[pol])
-        root.height = prevh + 1
-        if len(tab) > 2:
-            root.right = AVLpolowienie(tab[pol + 1:], root.height)
-        root.left = AVLpolowienie(tab[:pol], root.height)
-
+def AVLpolowienie(tab):
+    if len(tab) == 1:
+        node = Node(tab[0])
+        node.height = 0
     else:
-        root = Node(tab[0])
-        root.height = prevh + 1
-
-    return root
+        pol = math.floor(len(tab) / 2)
+        node = Node(tab[pol])
+        node.left = AVLpolowienie(tab[:pol])
+        if len(tab) > 2:
+            node.right = AVLpolowienie(tab[pol + 1:])
+        
+        node.height = 1 + max(node.left.height,(node.right.height if node.right else 0))
+        
+    return node
 
 
 def BSTwstaw(val, node):
     if not node.value:
         node.value = val
-        return
 
-    if val <= node.value:
+    elif val < node.value:
         if node.left:
             BSTwstaw(val, node.left)
-            return
-        node.left = Node(val)
-        return
+        else:
+            node.left = Node(val)
 
-    if node.right:
+    elif node.right:
         BSTwstaw(val, node.right)
-        return
-    node.right = Node(val)
+    else:
+        node.right = Node(val)
+
+    node.height = 1 + max((node.left.height if node.left else 0), (node.right.height if node.right else 0))
 
 
 def BSTstworz(tab, node):
@@ -214,15 +93,112 @@ def BSTstworz(tab, node):
         BSTwstaw(el, node)
     return node
 
+def getBalance(node):
+    if node:
+        return node.left.height - node.right.height 
+    return 0
 
-def height(root):
-    if root is None: #sprawdza czy poddrzewo nie jest puste
-        return 0
-    left_h=height(root.left)
-    right_h=height(root.right)
+def rotateR(root):
+    newRoot = root.left
+    temp = newRoot.right
 
-    return max(left_h,right_h)
+    newRoot.right = root
+    root.left = temp
 
+    root.height = 1 + max((root.left.height if root.left else 0), (root.right.height if root.right else 0))
+    newRoot.height = 1 + max((root.left.height if root.left else 0), (root.right.height if root.right else 0))
+
+    return newRoot
+
+def rotateL(root):
+    newRoot = root.right
+    temp = newRoot.left
+    
+
+    newRoot.left = root
+    root.right = temp
+
+    root.height = 1 + max((root.left.height if root.left else 0), (root.right.height if root.right else 0))
+    newRoot.height = 1 + max((root.left.height if root.left else 0), (root.right.height if root.right else 0))
+
+    return newRoot
+
+def deleteNode(root, val, AVL):
+    if not root:
+        return root
+    
+    if val < root.value:
+        root.left = deleteNode(root.left, val, AVL)
+    elif val > root.value:
+        root.right = deleteNode(root.right, val, AVL)
+    else:
+        if not root.left:
+            rightofroot = root.right
+            root = None
+            return rightofroot
+ 
+        elif not root.right:
+            leftofroot = root.left
+            root = None
+            return leftofroot
+
+        smallestinrightsub = root.right
+        while smallestinrightsub.left:
+            smallestinrightsub = smallestinrightsub.left
+
+        root.value = smallestinrightsub.value
+
+        root.right = deleteNode(root.right, smallestinrightsub.value, AVL)
+
+        if AVL:
+            balance = getBalance(root)
+
+            # jesli balance > to przechylone w lewo
+            # Case 1 - Left Left
+            if balance > 1 and getBalance(root.left) <= 0:
+                return rotateR(root)
+    
+            # Case 2 - Right Right
+            if balance < -1 and getBalance(root.right) >= 0:
+                return rotateL(root)
+    
+            # Case 3 - Left Right
+            if balance > 1 and getBalance(root.left) < 0:
+                root.left = rotateL(root.left)
+                return rotateR(root)
+    
+            # Case 4 - Right Left
+            if balance < -1 and getBalance(root.right) > 0:
+                root.right = rotateR(root.right)
+                return rotateL(root)
+        
+    return root
+
+def log2(x):
+    y=1
+    x = x>>1
+    while x>0:
+        y = y << 1
+        x = x >> 1
+
+    return y
+
+def DSW(root):
+    temp = root
+    n = 0
+
+    while temp.left:
+        temp = rotateR(temp)
+    root = temp
+
+    while temp.right:
+        while temp.left:
+            temp = rotateR(temp)
+        temp = temp.right
+        
+    preorder(root)
+
+    return root
 
 wybor = ""
 while True:
@@ -237,22 +213,29 @@ while True:
 dane = []
 if wybor == "1":
     for _ in range(10):
-        dane.append(random.randint(0, 100))
+        while True:
+            liczba = random.randint(0, 100)
+            if liczba not in dane:
+                dane.append(liczba)
+                break
 else:
     while True:
-        print("Podaj ciąg liczb (n<=10)")
+        print("Podaj ciąg różnych liczb (n<=10)")
         dane = input().split(" ")
         try:
             dane = [int(el) for el in dane]
         except:
             continue
+
+        if len(dane) != len(set(dane)):
+            continue
+
         if len(dane) > 1 and len(dane) < 10:
             break
 
 print("Twoje dane to: {}".format(dane))
 
-# Korzen drzewa
-root = AVLpolowienie(dane, 0)
+root = AVLpolowienie(sorted(dane))
 root2 = BSTstworz(dane, Node(None))
 
 while True:
@@ -261,7 +244,7 @@ while True:
     print("2 - wyszukanie w drzewie elementu o najwiekszej wartości i wypisanie ścieżki poszukiwania")
     print("3 - usunięcie elementu drzewa o wartości klucza podanej przez użytkownika")
     print("4 - wypisanie wszystkich elementów drzewa w porządku in-order")
-    print("5 - wypisanie wszystkich elementów drzewa w porządku post-order")
+    print("5 - wypisanie wszystkich elementów drzewa w porządku pre-order")
     print("6 - usunięcie całego drzewa element po elemencie metodą post-order")
     print("7 - równoważenie drzewa przez rotacje")
     print("0 - zakoncz program")
@@ -278,24 +261,21 @@ while True:
             print()
             print(getMax(root2))
         elif w == 3:
-            pass
+            val = int(input("Podaj liczbe"))
+            root = deleteNode(root, val, 1)
+            preorder(root)
         elif w == 4:
             inorder(root)
             print()
             inorder(root2)
         elif w == 5:
-            postorder(root)
+            preorder(root)
             print()
-            postorder(root2)
+            preorder(root2)
         elif w == 6:
             deleteWholeTree(root)
             deleteWholeTree(root2)
         elif w == 7:
-            pass
-          
-# Przeszukujemy drzewo w kolejnosci in-order
-preorder(root)
-
-print("")
-
-preorder(root2)
+            preorder(root)
+            print()
+            DSW(root)
