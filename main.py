@@ -192,11 +192,36 @@ def DSW(root):
     root = temp
 
     while temp.right:
-        while temp.left:
-            temp = rotateR(temp)
+        while temp.right.left:
+            temp.right = rotateR(temp.right)
+        n += 1
         temp = temp.right
         
+    s = n - log2(n+1)
+    
+    root = rotateL(root)
+    temp = root
+
+    for _ in range(s):
+        temp.right = rotateL(temp.right)
+        temp = temp.right
+
+    n -= s
+
+    temp = root
+
     preorder(root)
+    print()
+    
+
+    # teraz tu nie działa \/
+    while n>1:
+        n >>= 1
+        for _ in range(n):
+            temp = rotateL(temp)
+            temp = temp.right
+            preorder(root)
+            print()
 
     return root
 
@@ -276,6 +301,6 @@ while True:
             deleteWholeTree(root)
             deleteWholeTree(root2)
         elif w == 7:
-            preorder(root)
+            preorder(root2)
             print()
-            DSW(root)
+            DSW(root2)
