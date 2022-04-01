@@ -53,6 +53,8 @@ def deleteWholeTree(node):
     node.left = None
     node.right = None
 
+    return Node(None)
+
 
 def AVLpolowienie(tab):
     if len(tab) == 1:
@@ -190,40 +192,46 @@ def DSW(root):
     while temp.left:
         temp = rotateR(temp)
     root = temp
+    n += 1
 
     while temp.right:
         while temp.right.left:
             temp.right = rotateR(temp.right)
         n += 1
         temp = temp.right
-        
-    s = n - log2(n+1)
     
-    root = rotateL(root)
-    temp = root
+    s = n + 1 - log2(n+1)
 
-    for _ in range(s):
-        temp.right = rotateL(temp.right)
-        temp = temp.right
+    for i in range(s):
+        if i == 0:
+            root = rotateL(root)
+            temp = root
+        else:
+            temp.right = rotateL(temp.right)
+            temp = temp.right
 
     n -= s
 
     temp = root
 
-    preorder(root)
-    print()
-    
-
-    # teraz tu nie działa \/
-    while n>1:
+    while n > 1:
         n >>= 1
-        for _ in range(n):
-            temp = rotateL(temp)
-            temp = temp.right
-            preorder(root)
-            print()
+        temp = root
+        for i in range(n):
+            if i == 0:
+                temp = rotateL(temp)
+                root = temp
+            else:
+                temp.right = rotateL(temp.right)
+                temp = temp.right
 
     return root
+
+def printTree(node, level=0):
+    if node != None:
+        printTree(node.left, level + 1)
+        print(' ' * (4 * level) + '-> ' + str(node.value))
+        printTree(node.right, level + 1)
 
 wybor = ""
 while True:
@@ -298,9 +306,11 @@ while True:
             print()
             preorder(root2)
         elif w == 6:
-            deleteWholeTree(root)
-            deleteWholeTree(root2)
+            root = deleteWholeTree(root)
+            root2 = deleteWholeTree(root2)
         elif w == 7:
-            preorder(root2)
+            printTree(root2)
             print()
-            DSW(root2)
+            root2 = DSW(root2)
+            print()
+            printTree(root2)
