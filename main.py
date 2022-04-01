@@ -263,7 +263,7 @@ else:
         if len(dane) != len(set(dane)):
             continue
 
-        if len(dane) > 1 and len(dane) < 10:
+        if len(dane) > 1 and len(dane) <= 10:
             break
 
 print("Twoje dane to: {}".format(dane))
@@ -294,7 +294,13 @@ while True:
             print()
             print(getMax(root2))
         elif w == 3:
-            val = int(input("Podaj liczbe"))
+            while True:
+                ile = int(input("Podaj ile elementów chcesz usunąć"))
+                if ile <= len(dane):
+                    break
+            
+            for _ in range(ile):
+                val = int(input("Podaj jaki element chcesz usunąć"))
             root = deleteNode(root, val, 1)
             preorder(root)
         elif w == 4:
