@@ -3,26 +3,43 @@ import random
 
 class Node:
     def __init__(self, value):
-        self.value = value
-        self.left = None
-        self.right = None
-        self.height = 0
+        self.value = value # wartość
+        self.left = None # lewy syn
+        self.right = None # prawy syn
+        self.treeheight = 0 # wysokość drzewa
 
-def inorder(node):
-    if node.left:
-        inorder(node.left)
-    print(node.value)
-    if node.right:
-        inorder(node.right)
+def AVLpolowienie(tab):                     
+    if len(tab) == 1:           
+        node = Node(tab[0])                 # tworzymy nowy węzeł dla jedynego elementu w pozostałej tablicy
+        node.treeheight = 0                     # który jest na najniższym poziomie
+    else:
+        pol = math.floor(len(tab) / 2)          # wybieramy środkowy indeks
+        node = Node(tab[pol])                   # tworzymy nowy węzeł dla elementu na środkowym indeksie
+        node.left = AVLpolowienie(tab[:pol])    # rekurencyjnie wywołujemy funkcję przypisania dla lewego dziecka 
+        if len(tab) > 2:                                # jeśli istnieją przynajmniej 2 elementy (bo [pol] to element prawy w 2 el tablicy)
+            node.right = AVLpolowienie(tab[pol + 1:])   # rekurencyjnie wywołujemy funkcję przypisania dla prawego dziecka 
+        node.treeheight = 1 + max(node.left.treeheight, node.right.treeheight)
+    return node                                    # zwracamy korzeń do przypisania
 
+def BSTstworz(tab, node):
+    for el in tab:
+        BSTwstaw(el, node)
+    return node
 
-def preorder(node):
-    print(node.value)
-    if node.left:
-        preorder(node.left)
-    if node.right:
-        preorder(node.right)
+def BSTwstaw(val, node):
+    if not node.value:      # jeśli węzeł nie ma nadanej wartości (pierwszy)
+        node.value = val    # value = val
 
+    elif val < node.value:          # jak jest mniejsze to sprawdzamy lewe dziecko
+        if node.left:                       # jeśli już istnieje
+            BSTwstaw(val, node.left)    # idziemy rekurencyjnie w dół w lewo
+        else:                               # jeśli nie
+            node.left = Node(val)       # tworzymy nowy węzeł
+                                    # jak jest większe to sprawdzamy prawe dziecko
+    elif node.right:                        # jeśli już istnieje 
+        BSTwstaw(val, node.right)       # idziemy rekurencyjnie w dół w prawo
+    else:                                   # jeśli nie
+        node.right = Node(val)          # tworzymy nowy węzeł
 
 def getHeight(node):
     if node:
@@ -31,153 +48,97 @@ def getHeight(node):
         return 0
 
 
-def getMin(node):
+def getMin(node):             # idziemy do najbardziej lewego elementu
+    print(node.value)
     while (node.left):
         node = node.left
+        print(node.value)
 
-    return node.value
+    return node
 
-
-def getMax(node):
+def getMax(node):               # idziemy do najbardziej prawego elementu
+    print(node.value)
     while (node.right):
         node = node.right
+        print(node.value)
 
-    return node.value
+    return node
 
+def deleteNode(root, val, AVL):
+    if val < root.value:            # do usunięcia mniejsza niż aktualna 
+        root.left = deleteNode(root.left, val, AVL) # zchodzimy rekurencyjnie w dół
+    elif val > root.value:          # do usunięcia większa niż aktualna 
+        root.right = deleteNode(root.right, val, AVL) # zchodzimy rekurencyjnie w prawo
+    else:                           # do usunięcia właśnie ta
+        if not root.left and not root.right:    # jeśli nie ma dzieci
+            return None                             # usuwany
+        
+        elif not root.left:                     # jeśli nie ma lewego dziecka 
+            rightofroot = root.right                # to prawe jest nowym korzeniem
+            root = None                             # stary korzeń usuwamy
+            return rightofroot                      # zwracamy do przypisania nowy
+ 
+        elif not root.right:                    # jeśli nie ma prawego dziecka
+            leftofroot = root.left                  # to lewe jest nowym korzeniem
+            root = None                             # stary korzeń usuwamy
+            return leftofroot                       # zwracamy do przypisania nowy
 
-def deleteWholeTree(node):
+        else:                                   # jeśli ma dwoje dzieci
+            smallestinrightsub = root.right         
+            while smallestinrightsub.left:
+                smallestinrightsub = smallestinrightsub.left                   # bierzemy najmniejsze dziecko w prawym poddrzewie
+
+            root.value = smallestinrightsub.value                              # przypisujemy /\ wartość do korzenia 
+
+            root.right = deleteNode(root.right, smallestinrightsub.value, AVL) # i usuwamy podwojoną wartość w prawym poddrzewie
+        
+    return root
+
+def inorder(node):              # L K P
     if node.left:
-        deleteWholeTree(node.left)
+        inorder(node.left)
+    print(node.value)
+    if node.right:
+        inorder(node.right)
+
+ 
+def preorder(node):             # K L P
+    print(node.value)
+    if node.left:
+        preorder(node.left)
+    if node.right:
+        preorder(node.right)
+
+def deleteWholeTree(node):      # przechodzimy przez drzewo od góry
+    if node.left:
+        deleteWholeTree(node.left)  # i rekurencyjnie schodzimy w dół 
     if node.right:
         deleteWholeTree(node.right)
-    node.left = None
+    node.left = None                # jak nie ma gdzie dalej to usuwamy
     node.right = None
 
-    return Node(None)
-
-
-def AVLpolowienie(tab):
-    if len(tab) == 1:
-        node = Node(tab[0])
-        node.height = 0
-    else:
-        pol = math.floor(len(tab) / 2)
-        node = Node(tab[pol])
-        node.left = AVLpolowienie(tab[:pol])
-        if len(tab) > 2:
-            node.right = AVLpolowienie(tab[pol + 1:])
-        
-        node.height = 1 + max(node.left.height,(node.right.height if node.right else 0))
-        
-    return node
-
-
-def BSTwstaw(val, node):
-    if not node.value:
-        node.value = val
-
-    elif val < node.value:
-        if node.left:
-            BSTwstaw(val, node.left)
-        else:
-            node.left = Node(val)
-
-    elif node.right:
-        BSTwstaw(val, node.right)
-    else:
-        node.right = Node(val)
-
-    node.height = 1 + max((node.left.height if node.left else 0), (node.right.height if node.right else 0))
-
-
-def BSTstworz(tab, node):
-    for el in tab:
-        BSTwstaw(el, node)
-    return node
-
-def getBalance(node):
-    if node:
-        return node.left.height - node.right.height 
-    return 0
+    return None
 
 def rotateR(root):
-    newRoot = root.left
-    temp = newRoot.right
+    newRoot = root.left         # nowy korzeń jest lewym dzieckiem obecnego
+    temp = newRoot.right        # zapisujemy prawe dziecko nowego korzenia
 
-    newRoot.right = root
-    root.left = temp
-
-    root.height = 1 + max((root.left.height if root.left else 0), (root.right.height if root.right else 0))
-    newRoot.height = 1 + max((root.left.height if root.left else 0), (root.right.height if root.right else 0))
+    newRoot.right = root        # nadpisujemy je poprzednim korzeniem
+    root.left = temp            # prawe dziecko nowego korzenia staje się lewym dzieckiem prawego (starego korzenia)
 
     return newRoot
 
 def rotateL(root):
-    newRoot = root.right
-    temp = newRoot.left
+    newRoot = root.right        # nowy korzeń jest prawego dzieckiem obecnego
+    temp = newRoot.left         # zapisujemy lewe dziecko nowego korzenia
     
-
-    newRoot.left = root
-    root.right = temp
-
-    root.height = 1 + max((root.left.height if root.left else 0), (root.right.height if root.right else 0))
-    newRoot.height = 1 + max((root.left.height if root.left else 0), (root.right.height if root.right else 0))
+    newRoot.left = root         # nadpisujemy je poprzednim korzeniem
+    root.right = temp           # lewe dziecko nowego korzenia staje się prawym dzieckiem lewego (starego korzenia)
 
     return newRoot
 
-def deleteNode(root, val, AVL):
-    if not root:
-        return root
-    
-    if val < root.value:
-        root.left = deleteNode(root.left, val, AVL)
-    elif val > root.value:
-        root.right = deleteNode(root.right, val, AVL)
-    else:
-        if not root.left:
-            rightofroot = root.right
-            root = None
-            return rightofroot
- 
-        elif not root.right:
-            leftofroot = root.left
-            root = None
-            return leftofroot
-
-        smallestinrightsub = root.right
-        while smallestinrightsub.left:
-            smallestinrightsub = smallestinrightsub.left
-
-        root.value = smallestinrightsub.value
-
-        root.right = deleteNode(root.right, smallestinrightsub.value, AVL)
-
-        if AVL:
-            balance = getBalance(root)
-
-            # jesli balance > to przechylone w lewo
-            # Case 1 - Left Left
-            if balance > 1 and getBalance(root.left) <= 0:
-                return rotateR(root)
-    
-            # Case 2 - Right Right
-            if balance < -1 and getBalance(root.right) >= 0:
-                return rotateL(root)
-    
-            # Case 3 - Left Right
-            if balance > 1 and getBalance(root.left) < 0:
-                root.left = rotateL(root.left)
-                return rotateR(root)
-    
-            # Case 4 - Right Left
-            if balance < -1 and getBalance(root.right) > 0:
-                root.right = rotateR(root.right)
-                return rotateL(root)
-        
-    return root
-
-def log2(x):
-    y=1
+def log2(x):    # 2^log2 ( x ), pozostawiamy największy bit w liczbie
+    y = 1
     x = x>>1
     while x>0:
         y = y << 1
@@ -186,37 +147,39 @@ def log2(x):
     return y
 
 def DSW(root):
-    temp = root
-    n = 0
+    newRoot = root     # kopiujemy korzeń
+    n = 0           # rozpoczynami zliczanie węzłów
 
-    while temp.left:
-        temp = rotateR(temp)
-    root = temp
-    n += 1
+    while newRoot.left:             # dopóki węzeł ma lewego syna
+        newRoot = rotateR(newRoot)      # to obracamy go w prawo
+    root = newRoot                  # i nadpisujemy stary korzeń nowym
+    n += 1                          # i zliczamy go do liczby
 
-    while temp.right:
-        while temp.right.left:
-            temp.right = rotateR(temp.right)
-        n += 1
-        temp = temp.right
+    temp = root                     # kopiujemy korzeń
+
+    while temp.right:               # przechodzimy drzewo w prawo
+        while temp.right.left:          # dopóki węzeł ma lewe dziecko
+            temp.right = rotateR(temp.right) # obracamy go w prawo
+        n += 1                      # zliczamy węzeł
+        temp = temp.right           # i schodzimy dalej
     
-    s = n + 1 - log2(n+1)
+    s = n + 1 - log2(n+1)           # wyznaczamy początkową liczbę obrotów
 
-    for i in range(s):
-        if i == 0:
-            root = rotateL(root)
-            temp = root
+    for i in range(s):      # s razy
+        if i == 0:              # aby nie stracić korzenia
+            root = rotateL(root)    # obracamy węzeł w lewo i nadpisujemy korzeń
+            temp = root             # kopiujemy korzeń
         else:
-            temp.right = rotateL(temp.right)
-            temp = temp.right
+            temp.right = rotateL(temp.right)    # obracamy w prawo prawe dziecko
+            temp = temp.right                   # i pomijamy jeden element
 
-    n -= s
+    n -= s                  # pomniejszamy liczbę obrotów o s
 
-    temp = root
+    temp = root             # kopiujemy korzeń
 
-    while n > 1:
+    while n > 1:    # to samo co wyżej tylko zmniejszamy n >> 1
         n >>= 1
-        temp = root
+        temp = root     # cały czas kopiujemy nowy korzeń powstały w wyniku rotacji
         for i in range(n):
             if i == 0:
                 temp = rotateL(temp)
@@ -226,12 +189,6 @@ def DSW(root):
                 temp = temp.right
 
     return root
-
-def printTree(node, level=0):
-    if node != None:
-        printTree(node.left, level + 1)
-        print(' ' * (4 * level) + '-> ' + str(node.value))
-        printTree(node.right, level + 1)
 
 wybor = ""
 while True:
@@ -286,23 +243,23 @@ while True:
         break
     elif w in [1,2,3,4,5,6,7]:
         if w == 1:
-            print(getMin(root))
+            getMin(root)
             print()
-            print(getMin(root2))
+            getMin(root2)
         elif w == 2:
-            print(getMax(root))
+            getMax(root)
             print()
-            print(getMax(root2))
+            getMax(root2)
         elif w == 3:
             while True:
-                ile = int(input("Podaj ile elementów chcesz usunąć"))
+                ile = int(input("Podaj ile elementów chcesz usunąć: "))
                 if ile <= len(dane):
                     break
             
             for _ in range(ile):
-                val = int(input("Podaj jaki element chcesz usunąć"))
-            root = deleteNode(root, val, 1)
-            preorder(root)
+                val = int(input("Podaj jaki element chcesz usunąć: "))
+                root = deleteNode(root, val, 1)
+                root2 = deleteNode(root2, val, 1)
         elif w == 4:
             inorder(root)
             print()
@@ -315,8 +272,5 @@ while True:
             root = deleteWholeTree(root)
             root2 = deleteWholeTree(root2)
         elif w == 7:
-            printTree(root2)
-            print()
+            root = DSW(root)
             root2 = DSW(root2)
-            print()
-            printTree(root2)
