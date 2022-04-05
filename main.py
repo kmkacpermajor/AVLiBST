@@ -18,7 +18,7 @@ def AVLpolowienie(tab):
         node.left = AVLpolowienie(tab[:pol])    # rekurencyjnie wywołujemy funkcję przypisania dla lewego dziecka 
         if len(tab) > 2:                                # jeśli istnieją przynajmniej 2 elementy (bo [pol] to element prawy w 2 el tablicy)
             node.right = AVLpolowienie(tab[pol + 1:])   # rekurencyjnie wywołujemy funkcję przypisania dla prawego dziecka 
-        node.treeheight = 1 + max(node.left.treeheight, node.right.treeheight)
+        node.treeheight = 1 + max((node.left.treeheight if node.left else 0), (node.right.treeheight if node.right else 0))
     return node                                    # zwracamy korzeń do przypisania
 
 def BSTstworz(tab, node):
